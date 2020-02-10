@@ -19,7 +19,7 @@ libr(c("purrr", "igraph", "RColorBrewer", "ggplot2", "ggrepel", "plotly"))
 ```
 
 Then load the functions and create your graph data.
-```
+```r
 # load example graph; v contains nodes named by "phenotype" & e contains edges.
 load("gr.Rdata")
 
@@ -28,12 +28,12 @@ source("gr.R")
 ```
 
 Give your graph a layout (give the parameter `layout_fun` a layout function from the igraph package; the default layout or `NULL` is to use an evenly spaced hierarchy layout).
-```
+```r
 gr <- set_layout_graph(gr, layout_fun=NULL) # set x y coordinates (layout)
 ```
 
 Add plotting parameters to your data grams e.g. colour, label, which nodes/edges to show/hide (`T`/`F`) etc.
-```
+```r
 gr <- ggdf(gr) # add plotting parameters to data frames, editted below
 gr$v$colour <- rnorm(nrow(gr$v),0,2) # random node colours
 gr$v$label <- gr$v$phenotype # give some node labels
@@ -42,7 +42,7 @@ gr$e$e_ind <- !grepl("[-]",gr$e$from) & !grepl("[-]",gr$e$to) # which edges to s
 ```
 
 And finally, save the plot.
-```
+```r
 # create and save ggplot
 gch <- gggraph(gr, main="Example cell hierarchy with markers A, B, C, D")
 ggplot2::ggsave("gr.png",
