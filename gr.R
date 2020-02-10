@@ -1,10 +1,3 @@
-require(purrr)
-require(igraph)
-require(RColorBrewer)
-require(ggplot2)
-require(ggrepel)
-require(plotly)
-
 #' @title Determines cell hierarchy layout.
 #' @description Determines cell hierarchy layout and returns the X, Y coordinate
 #'  of each cell population.
@@ -18,10 +11,6 @@ require(plotly)
 #'
 #'
 #' @seealso
-#'  \code{\link[flowGraph]{set_layout}}
-#'  \code{\link[igraph]{as_data_frame}}
-#'  \code{\link[igraph]{layout.reingold.tilford}}
-#'  \code{\link[igraph]{V}}
 #' @rdname set_layout_graph
 #' @export
 #' @importFrom igraph graph_from_data_frame layout.reingold.tilford V
@@ -106,19 +95,6 @@ set_layout_graph <- function(gr, layout_fun=NULL) {
 #'
 #'
 #' @seealso
-#'  \code{\link[flowGraph]{flowGraph-class}}
-#'  \code{\link[flowGraph]{fg_plot}}
-#'  \code{\link[flowGraph]{get_phen_meta}}
-#'  \code{\link[flowGraph]{ggdf}}
-#'  \code{\link[flowGraph]{fg_get_feature}}
-#'  \code{\link[flowGraph]{fg_get_summary}}
-#'  \code{\link[ggplot2]{labs}},
-#'  \code{\link[ggplot2]{scale_colour_brewer}},
-#'  \code{\link[ggplot2]{geom_segment}},
-#'  \code{\link[ggplot2]{aes}},
-#'  \code{\link[ggplot2]{geom_point}}
-#'  \code{\link[ggrepel]{geom_label_repel}}
-#'  \code{\link[plotly]{plot_ly}}
 #' @rdname gggraph
 #' @export
 #' @importFrom ggplot2 ggplot aes scale_x_continuous scale_y_continuous
@@ -239,20 +215,48 @@ gggraph <- function(gr, main=NULL, bgedges=NULL, interactive=FALSE,
     return(gp)
 }
 
-
-################### START HEREs ###################
-
-load(gr)
-
-gr <- set_layout_graph(gr) # set x y coordinates (layout)
-gr <- ggdf(gr) # add plotting parameters to data frames, editted below
-gr$v$colour <- rnorm(nrow(gr$v),0,2) # random node colours
-gr$v$label <- gr$v$phenotype # give some node labels
-gr$v$v_ind <- gr$v$label_ind <- TRUE # which nodes to colour in and label
-gr$e$e_ind <- !grepl("[-]",gr$e$from) & !grepl("[-]",gr$e$to) # which edges to show
-
-# create and save ggplot
-gch <- gggraph(gr, main="Example cell hierarchy with markers A, B, C, D")
-ggplot2::ggsave("gr.png",
-                plot=gch, scale=1, width=9, height=9,
-                units="in", dpi=500, limitsize=TRUE)
+                               
+#' @title Prepares a given node and edge graph list for plotting.
+#' @description Prepares a given node and edge graph list
+#'  for plotting by function gggraph;
+#'  do not use this function on its own.
+#' @param gr0 A list containing data frames \code{e} and \code{v}.
+#' @return A list containing data frames \code{e} and \code{v}, each
+#'  with additional meta data column.
+#' @details code{ggdf} adds to the data frames \code{v} and \code{e} in slot
+#'  \code{graph} from a \code{flowGraph} object specifying plotting options as
+#'  required by \code{\link[flowGraph]{gggraph}}:
+#'  \itemize{
+#'    \item{\code{v}}
+#'    \itemize{
+#'      \item{\code{size}: a numeric indicating node size.}
+#'      \item{\code{colour}: a numeric or string indicating node colour.}
+#'      \item{\code{label}: a string indicating the label of a node.}
+#'      \item{\code{label_long}: a string indicating teh long label of a node;
+#'       used in interactive plots in \code{\link[flowGraph]{gggraph}}}.
+#'      \item{\code{label_ind}: a vector of logical variables indicating which
+#'       nodes to add a label to in a static plot.}
+#'      \item{\code{v_ind}: a vector of logical variables indicating which
+#'       nodes to plot.}
+#'    }
+#'    \item{\code{e}}
+#'    \itemize{
+#'      \item{\code{colour}: a numeric or string indicating edge colour.}
+#'      \item{\code{e_ind}: a vector of logical variables indicating which
+#'       edges to plot.}
+#'    }
+#'  }
+#' @examples
+#'
+#'
+#' @seealso
+#' @rdname ggdf
+#' @export
+ggdf <- function(gr0) {
+    base::list(e=base::data.frame(gr0$e, colour=0, e_ind=FALSE),
+               v=base::data.frame(gr0$v,
+                                  size=1, colour=0,
+                                  #sizeb=1, colourb="", fill="",
+                                  label=gr0$v$phenotype,
+                                  label_ind=FALSE, v_ind=FALSE))
+}
